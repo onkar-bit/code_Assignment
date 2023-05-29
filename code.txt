@@ -1,0 +1,52 @@
+ C code:
+
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <list>
+
+using namespace std;
+
+class RecentlyPlayedSongs {
+private:
+    int capacity;
+    unordered_map<int, list<string>::iterator> user_map;
+    unordered_map<int, list<string>> songs_map;
+
+public:
+    RecentlyPlayedSongs(int capacity) {
+        this->capacity = capacity;
+    }
+
+    void playSong(int user_id, string song) {
+        // Check if the user exists in the user_map
+        if (user_map.find(user_id) == user_map.end()) {
+            // Add the user to the user_map and assign an empty list in the songs_map
+            songs_map[user_id] = list<string>();
+            user_map[user_id] = songs_map[user_id].begin();
+        }
+
+        // Check if the user's list has reached the capacity
+        if (songs_map[user_id].size() == capacity) {
+            // Remove the least recently played song from the list
+            songs_map[user_id].erase(prev(user_map[user_id]));
+        }
+
+        // Add the new song to the user's list and update the user_map
+        songs_map[user_id].push_back(song);
+        user_map[user_id] = prev(songs_map[user_id].end());
+    }
+
+    void printRecentlyPlayedSongs(int user_id) {
+        if (user_map.find(user_id) == user_map.end()) {
+            cout << "User not found." << endl;
+            return;
+        }
+
+        list<string> user_songs = songs_map[user_id];
+        cout << "Recently played songs for user " << user_id << ":" << endl;
+        for (auto it = user_songs.rbegin(); it != user_songs.rend(); it++) {
+            cout << *it << endl;
+        }
+    }
+};
